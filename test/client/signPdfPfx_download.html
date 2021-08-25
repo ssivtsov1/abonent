@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="CACHE-CONTROL" content="NO-CACHE; charset=windows-1251"/>
+        <meta http-equiv="сache-сontrol" content="no-cache"/>
+        <meta http-equiv="pragma" content="no-cache"/>
+        <meta http-equiv="expires" content="0"/>
+        <title>PDF download &amp; sign</title>
+        <link rel='stylesheet' type='text/css' href='plugins/message.css'/>
+        <script src="plugins/javaChecker.js?version=2.1" type="text/javascript" charset="cp1251"></script>
+        <script type="text/javascript">
+          JavaChecker.init("ru");
+          var javaIsOK = JavaChecker.verifyJava();//Java поддерживается браузером/ОС?
+          var browserInfo = JavaChecker.getBrowserInfo();//
+          var isIE7 = browserInfo.indexOf("7") !=  - 1 || browserInfo.indexOf("8") !=  - 1;// это IE7 или IE8
+          // ---------- дополнительно для информации на странице
+          var javaVersion = JavaChecker.getJavaVersion();//если Java установлена и разрешена, то имеем версию
+          var javaTxt = "НЕТ";
+          if (javaVersion) {
+              javaTxt = "ДА";
+          }
+
+          var jver = JavaChecker.getJavaVersion();
+          if (!jver)
+              jver = "-";
+          document.write("<b>Ваш компьютер:</b><br/>");
+          document.write("Java VM: Установлена = " + javaTxt + "; Версия = " + jver + ";<br/>");
+
+          document.write("Браузер: " + browserInfo + "; Платформа = " + navigator.platform + ";<br/>");
+          document.write("Система: " + JavaChecker.getOS() + ";<br/>");
+          //------------------------------
+          //------------ add start (! не изменять имя функций)
+          function cesaris_pin_callback(box) {
+              dhtmlx.modalbox.hide(box);
+              if (box.id == "cesaris_pin_ok") {
+                  var inputs = cesaris_pin_form.getElementsByTagName("input");
+                  getApplet().setPinPfx(inputs[0].value);
+                  inputs[0].value = "";
+              }
+              else {
+                  getApplet().setPinPfx(null);
+              }
+          }
+
+          var cesaris_pin_form;
+
+          function cesaris_pin_dialog() {
+              if (cesaris_pin_form == null) {
+                  cesaris_pin_form = dhtmlx.modalbox( {
+                      title : "<img src='plugins/resources/lock24.png'>Ввод пароля (ПИН)", content : "cesaris_pin_box", hidden : true
+                  });
+              }
+
+              dhtmlx.modalbox(cesaris_pin_form);
+              document.getElementById("dhtmlx_passw").focus();
+          }
+
+          //передать в апплет выбранный pfx файл и затем из апплета вызвать ввод ПИН
+          function setPfxToApplet(input) {
+              var name = document.getElementById("pfx_filename");
+              if (name != null)
+                  name = name.value;
+              getApplet().selectPfx(input.value, name);
+          }
+
+          //копировать pfx в папку юзера, чтобы не выбирать каждый раз путь к нему
+          //независимо от того создавать копию или нет, здесь еще и парсится pfx
+          function copyPfx_callback(result) {
+              getApplet().copyPfx(result);
+          }
+
+          //------------ add end ----------------
+          var _ie = JavaChecker.isIE();
+
+          function viewSpiner(flag) {
+              var spiner = document.getElementById("Spinner");
+              try {
+                  if (flag) {
+                      spiner.style.display = "block";
+                  }
+                  else {
+                      spiner.style.display = "none";
+                  }
+              }
+              catch (ex) {
+                  ;
+              }
+          }
+
+          function getApplet() {
+              var app;
+              if (_ie)
+                  app = document.applets["signerApplet"];
+              else 
+                  app = document.embeds[0];
+              return app;
+          }
+
+          function startApplet() {
+              var appletHtml;
+              if (_ie) {
+                  //IE
+                  appletHtml = '<object id="signerApplet" name="Bazis Signer Client" classid="clsid:CAFEEFAC-0016-0000-FFFF-ABCDEFFEDCBA" width="1" height="1" declare="declare"> <param name="type" value="application/x-java-applet"/> <param name="code" value="com.amb.applet.view.SignerWin"/> <param name="codebase_lookup" value="false"/> <param name="codebase" value="./plugins/"/> <param name="cache_option" value="Plugin"/> <param name="cache_archive_ex" value="ambasn.jar;preload,ambprovider.jar;preload,ambapi.jar;preload,pdfapi.jar;preload"/>';
+                  appletHtml += ' <param name="cache_archive" value="ambclient.jar"/>';
+                  appletHtml += ' <param name="separate_jvm" value="true"/> <param name="language" value="ru"/> <param name="java_arguments" value="-Djnlp.packEnabled=true -Dsun.java2d.d3d=false -Dsun.java2d.noddraw=true"/> <\/object>';
+              }
+              else {
+                  //NETSCAPE, Chrome, Opera, Forefox.        
+                  appletHtml = '<embed id="signerApplet" name="Bazis Signer Client" width="1" height="1" type="application/x-java-applet" pluginspage="http://www.java.com/en/download/" code="com.amb.applet.view.SignerWin" codebase_lookup="false" codebase="./plugins/" cache_option="Plugin" cache_archive_ex="ambasn.jar;preload,ambprovider.jar;preload,ambapi.jar;preload,pdfapi.jar;preload" cache_archive="ambclient.jar" language="ru" separate_jvm="true" java_arguments=" -Djnlp.packEnabled=true -Xms512m -Xmx1024m -Dsun.java2d.d3d=false -Dsun.java2d.noddraw=true"/>';                  
+              }
+
+              //------------ add start
+              document.getElementById("cesaris_signer_div").innerHTML = appletHtml;
+
+              appletHtml = "<div id='cesaris_pin_box' style='display:none'>" + "<div>Ввести пароль (ПИН) к ключу<br/><br/></div>" + "<div><label><span style='color:Red;'>*</span></label>Пароль <input id='dhtmlx_passw' type='password' autocomplete='off'/></div>" + "<div><p align='center'><input type='button' id='cesaris_pin_ok' value='Да' onclick='cesaris_pin_callback(this)' style='width:80px;'/>" + "<input type='button' id='cesaris_pin_no' value='Нет' onclick='cesaris_pin_callback(this)' style='width:80px;'/></p></div></div>";
+              document.getElementById("cesaris_pin_div").innerHTML = appletHtml;
+              //------------ add end
+              if (javaIsOK) {
+                  viewSpiner(false);
+              }
+          }
+
+          function getUserAgent() {
+              //передача аплету инфо. о браузере
+              return navigator.userAgent;
+          }
+
+          //вызывается из апплета - загрузить список сертификатов при старте апплета
+          function onLoadPage() {
+              try {
+                  getCertList();
+              }
+              catch (ex) {
+                  alert(ex);
+              }
+          }
+
+          //запустить в апплете View выбранного сертификатa 
+          function viewCert() {
+              var index = document.getElementById("certlist").selectedIndex;
+              getApplet().viewCert(index);
+          }
+
+          //получить из аплета список сертификатов для select
+          //в список включаются только сертификаты, предназначенные для подписи (KeyUsage: signature)
+          //исключаются сертификаты, срок действия которых не истек
+          //поддерживаемые хранилища: все Microsoft, включая смарт-карты
+          //ПИН доступа к хранилищу (если нужен) запрашивается при операции "Подписать"
+          function getCertList() {
+              var applet = getApplet();
+              var select = document.getElementById("certlist");
+
+              var jsArray = [];
+              var jsArrayDate = [];
+
+              var s_;
+              if (navigator.userAgent.indexOf("Macintosh") !=  - 1 && navigator.userAgent.indexOf("Safari") !=  - 1) {
+                  s_ = applet.getCNAsString();
+                  jsArray = s_.split("|");
+              }
+              else {
+                  jsArray = applet.getCertCN();
+              }
+
+              if (navigator.userAgent.indexOf("Macintosh") !=  - 1 && navigator.userAgent.indexOf("Safari") !=  - 1) {
+                  s_ = applet.getDateToAsString();
+                  jsArrayDate = s_.split("|");
+              }
+              else {
+                  jsArrayDate = applet.getDateTo();
+              }
+
+              select.options.length = 0;
+              for (var k = 0;k < jsArray.length;k++) {
+                  if (jsArrayDate[k] != "")
+                      jsArray[k] = jsArray[k] + " ; Действителен до: " + jsArrayDate[k];
+                  select.options[select.options.length] = new Option(jsArray[k], k);
+              }
+
+              var data = applet.getCertCount();
+              var obj = document.getElementById("certCount");
+              if (data != null && obj != null) {
+                  obj.value = data;
+              }
+
+              viewSpiner(false);
+          }
+
+          //запустить в апплете подпись pdf-файла
+          //возвращает из апплета имя+путь подписанного файла
+          function signPdf() {
+              document.getElementById("signFileName").value = "";
+
+              //обработка множества файлов - убрать все сообщения типа ОК, оставить только об ошибках
+              getApplet().setSilentMode(true);
+
+              //загрузить файл в локальную папку
+              var infilename = download();
+              if (infilename.length > 0) {
+                  document.getElementById("inputFile").value = infilename;
+                  //подписать, если не требуется ввести ПИН к файлу ключа (Windows) или после ввода ПИН (второй файл и т.д.)
+                  //если ПИН нужен, то signFile() возвращается на скрипт cesaris_pin_dialog(), после чего вызывается повторно signFile()
+                  signFile();
+              }
+          }
+
+          function signFile() {
+              //подписать загруженный файл после ввода ПИН к файлу ключа
+              var indx = document.getElementById("certlist").selectedIndex;
+              var tsp = document.getElementById("TimeStampCheckBox").checked;
+              var crl = document.getElementById("CRLCheckBox").checked;
+
+              var tsaUrl = document.getElementById("hiddenTsaUrl").value;
+              if (!tsp)
+                  tsaUrl = "";
+              var signedFile = getApplet().getSign(indx, tsaUrl, crl);
+              document.getElementById("signFileName").value = signedFile;
+              if (signedFile.length > 0) {
+                  //alert("Подписано успешно");
+              }
+              else {
+                  //alert("Подписано НЕ успешно");
+              }
+          }
+
+          //проверить подписи PDF-файла, имя которого в signFileName
+          //возвращает 0 (true) или 1 (false); сообщения и краткие детали выводит сам аплет           
+          function signatureVerify() {
+              var file = document.getElementById("signFileName").value;
+              getApplet().verify(file);
+          }
+
+          //проверить подпись входящего файла PDF (после его загрузки, т.е. после подписания)
+          function inputVerify() {
+              var file = document.getElementById("inputFile").value;
+              getApplet().verify(file);
+          }
+
+          //запустить View исходного документа
+          function viewSourcePdf() {
+              var file = document.getElementById("inputFile").value;
+              getApplet().viewPdf(file);
+          }
+
+          //запустить View исходного документа PDF
+          function viewSignedPdf() {
+              var file = document.getElementById("signFileName").value;
+              getApplet().viewPdf(file);
+          }
+
+          //загрузить файл с заданного URL (поле на странице с id="documentURL")
+          function download() {
+              var url = document.getElementById("documentURL").value;
+              return getApplet().download(url);
+          }
+
+          function crearPfxProperties() {
+              //очистить в конфиг.файле запись о PFX файле              
+              var ret = getApplet().clearPfxProperties();
+              if (ret == 0) {
+                  //перезагрузить список сертификатов                  
+                  getCertList();
+              }
+          }
+
+          //выбрать pfx файл - ключ подписи и цепочка сертификатов
+          function selectPfxPath() {
+              if (isIE7) {
+                  getApplet().selectPfxPath();
+              }
+              else {
+                  document.getElementById("selectPfxFileButtonID").click();
+              }
+          }
+        </script>
+    </head>
+    <body onload="startApplet()" style="background-color:#FFFFF9;">
+        <form id="form1" enctype="text/plain" action="signPdfBase64.html">
+            <p style="color:blue;font-size:20px; font-style:italic;font-weight: bold;">Подпись Base64 PDF документов
+                                                                                       (Windows XP/2003/2008/7/8; Mac OS
+                                                                                       X 10.7.3 и выше)</p>
+            <p style="font-size:12px;">
+                Ограничения: Максимум 4 подписи, которые размещаются на последней странице. Требуется: виртуальная
+                машина Java JVM JRE v.1.6/1.7. 
+                <br/>
+                 При подписании могут добавляться к подписи: безопасная метка времени (timestamp), списки отзыва
+                сертификата пользователя (CRL).<br/>
+                 Поддерживаюся все браузеры. Поддерживаемые алгоритмы подписи (через X.509 сертификаты и Windows CSP):
+                RSA,DSA,ECDSA,ГОСТ 34.310-95,ДСТУ 4145-2002, ГОСТ P 34.10-2001.<br/>
+                 Поддерживаются все стандартизированные крипто модули (крипто провайдеры CSP), интегрированные с
+                операционной системой Windows XP/2003/7/2008, в том числе смарт-карты и eToken.<br/>
+                 Поддерживается также pfx файл как хранилище ключей и сертификатов (в котором должна быть полная цепочка
+                сертификатов).
+            </p>
+            <p>&nbsp;</p>
+            <table cellspacing="2" cellpadding="3" border="0">
+                <tr>
+                    <th nowrap="nowrap">
+                        Список личных сертификатов:
+                        <input type="text" name="certCount" id="certCount" readonly="readonly" maxlength="3" size="3"/>
+                    </th>
+                    <td id="Spinner" width="70%" align="center">
+                        <img src="plugins/spinner.gif" alt=""/>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td align="left">
+                        <select name="certlist" id="certlist"/>
+                    </td>
+                    <td>
+                        <input type="button" onclick="viewCert()" value="Показать..."/>
+                    </td>
+                    <td>
+                        <input type="button" onclick="history.go(0);" value="Обновить"/>
+                    </td>
+                    <td>
+                        <!------------ add start  (! внимание к именам тегов !) -->
+                        <!-- выбрать pfx файл как хранилище ключей и их цепочки сертификатов -->
+                        <input type="button" onclick="selectPfxPath()" value="Выбрать pfx файл..."/>
+                         
+                        <input type="button" id="selectPfxFileButtonID" style="display:none"
+                               onclick="cesaris_performClick('cesaris_handleFileID', '.pfx');"/>
+                         &nbsp;или&nbsp; 
+                        <a href="#" onclick="crearPfxProperties();">Очистить конфигурацию pfx.</a>
+                         
+                        <input type="file" id="cesaris_handleFileID" style="display:none"
+                               onchange="cesaris_handleFiles(this, 'pfx_filename', 'cesaris_pfxDataTagID');"/>
+                         
+                        <input type="text" id="pfx_filename" style="display:none" value=""/><!------------ add end --><!-- удалить input type="button" onclick="selectPfxPath()" value="Выбрать pfx файл..."/-->
+                    </td>
+                </tr>
+            </table>
+            <table cellspacing="2" cellpadding="3" border="0">
+                <tr align="left">
+                    <th style="font-weight: normal;">
+                        <input checked="checked" type="checkbox" id="TimeStampCheckBox"/>
+                        Добавить к подписи метку времени | &nbsp;&nbsp;
+                        <input checked="checked" type="checkbox" id="CRLCheckBox"/>
+                        Добавить к подписи списки отзыва (CRL) | &nbsp;&nbsp;
+                    </th>
+                    <th>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" onclick="signPdf()" value="Подписать"/>
+                    </th>
+                </tr>
+            </table>
+            <p style="font-weight: bold;">
+                Подписанный документ PDF: 
+                <input type="button" onclick="viewSignedPdf()" value="Показать подписанный..."/>
+                 
+                <input type="button" onclick="signatureVerify()" value="Проверить подписанный"/>
+            </p>
+            <p style="font-weight: bold;">
+                Входящий документ PDF: 
+                <input type="button" onclick="viewSourcePdf()" value="Показать входящий..."/>
+                 
+                <input type="button" onclick="inputVerify()" value="Проверить входящий"/>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+                Вопросы и предложения просьба направлять по адресу 
+                <a href="mailto:tech@itsway.kiev.ua?subject=signPDF">tech@itsway.kiev.ua</a>
+            </p>
+            <p>
+                <input type="hidden" id="hiddenTsaUrl" value="http://cesaris.itsway.kiev.ua/tsa/srv/"/>
+                 
+                <input type="hidden" id="documentURL" value="documents/iso32000.pdf"/>
+                 
+                <input type="hidden" id="inputFile" value=""/>
+                 
+                <input type="hidden" id="signFileName" value=""/>
+            </p>
+            <!------------ add start (! внимание к именам тегов !)-->
+            <div>
+                <textarea id="cesaris_pfxDataTagID" style="display:none" cols="100" rows="10"
+                          onchange="setPfxToApplet(this);"></textarea>
+            </div>
+            <div id="cesaris_signer_div"></div>
+            <div id="cesaris_pin_div"></div>
+            <!------------ add end -->
+        </form>
+    </body>
+</html>

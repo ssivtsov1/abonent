@@ -1,0 +1,160 @@
+.dl-horizontal dt {
+  text-overflow: clip;
+  width: 220px;
+}
+
+.dl-horizontal dd {
+  float: left;
+  margin-left: 10px;
+}
+
+.dt-width {
+  width: 92px !important;
+}
+
+.margin-float-left {
+  margin: 5px 0 5px 20px;
+  float:left;
+}
+
+.help-label {
+  vertical-align: bottom;
+  cursor: help;
+}
+
+.table > thead > tr > th {
+  text-align: center !important;
+}
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.curh {
+  cursor: help;
+}
+
+.curd {
+  cursor: default;
+  margin-left: 7%;
+  margin-right: 7%;
+  background-color: #fff;	
+}
+
+.curp {
+  cursor: pointer;
+}
+
+#container_footer {
+  /*background-color: #493A34;*/
+  /*background-color: #2D3336;*/
+  /*background-color: #2C2C2D;*/
+  width: auto;
+  margin-left: 0;
+}
+
+
+.footer {
+  height: 60px;
+  /*background-color: #f5f5f5;*/
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+  margin-top: 19%;
+}
+
+#calendar_footer{
+  font-family: CalligraphiaOne;
+  width:900px;
+  /*    margin: 0 15%;*/
+  font-size: 10px;
+  text-align: center;
+  /*background-color: #F5F5F5;*/
+  /*background-color: #493A34;*/
+  /*background-color: #2D3336;*/
+  /*    //background-color: #2C2C2D;*/
+  border: none;
+  color: #555;
+  margin: auto;
+
+}
+#calendar_footer th {
+  font-family: CalligraphiaOne;
+  font-size: 10px;
+  text-align: center;
+  border: none;
+  padding-bottom: 1px;
+  color: grey;
+
+}
+#calendar_footer td {
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.footer_img {
+  width: 65px;
+  height: 65px;
+  margin-right: 100px;
+  border-radius: 20px;
+}
+#on_ceil {
+  border-left: 1px solid gray;
+  border-top: 1px solid gray;
+  border-right: 1px solid gray;
+  border-top-left-radius:8px;
+  border-top-right-radius: 8px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.folic{
+  clear: both;
+}
+.tel_cc{
+  color: grey;
+  margin-left:20%;
+}
+.tel_cc span{
+  color: #555;
+  margin-left: 30px;
+
+}
+.l_clear{
+  margin-right: 100%;
+}
+.reg_cab {
+  margin-left: 30px;
+  margin-top: 30px;
+  width: 45%;
+  border: 1px solid #66afe9;
+  border-radius: 20px 20px 20px 20px;
+  padding: 15px;
+}
+.reg_cab_last {
+  margin-left: 30px;
+  margin-top: 30px;
+  width: 45%;
+  /*border: 1px solid #66afe9;*/
+  /*border-radius: 20px 20px 20px 20px;*/
+  padding: 15px;
+}
+.reg_lab {
+  color: #555;
+  font-size: 16px;
+}
+
+.reg_lab1 {
+  color: #555;
+  font-size: 15px;
+  width: 50%;
+  float: left;
+  margin-right: 80px;
+}
+
+.table-striped1 > tbody > tr:nth-of-type(odd) {
+  background-color: #a9f9f9;
+}
+
+.orig1 {
+  padding-bottom: 100px;
+}

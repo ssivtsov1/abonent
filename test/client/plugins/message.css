@@ -1,0 +1,198 @@
+.dhtmlx_message_area {
+    position: fixed;
+    right: 5px;
+    width: 300px;
+    z-index: 1000;
+}
+
+.dhtmlx-info {
+    min-width: 200px;
+    min-height: 80px;
+    padding: 4px 4px 4px 20px;
+    font-family: Tahoma;
+    z-index: 10000;
+    margin: 5px;
+    margin-bottom: 10px;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.dhtmlx-info.hidden {
+    height: 0px;
+    min-height: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-width: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    overflow: hidden;
+}
+
+.dhtmlx_modal_box {
+    overflow: hidden;
+    display: inline-block;
+    text-align: center;
+    position: fixed;
+    min-width: 280px;
+    width: auto;
+    height: auto;
+    max-height: 100%;
+    overflow-y: scroll;
+    background-color: #fff;
+    
+    box-shadow: 0px 0px 14px #888;
+    z-index: 20000;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border: 1px solid #a5c6ff;
+}
+
+.dhtmlx_popup_title {
+    border-width: 0px;
+    background-color: #a5c6ff;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.dhtmlx-info, .dhtmlx_popup_button, .dhtmlx_button {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    cursor: pointer;
+    
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx_popup_text {
+    overflow: hidden;
+}
+
+.dhtmlx_popup_controls {
+    padding: 10px;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx_popup_button, .dhtmlx_button {
+    height: 20px;
+    line-height: 20px;
+    display: inline-block;
+    margin: 0 5px;
+    color: #FFF;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx_popup_button {
+    min-width: 70px;
+}
+
+div.dhx_modal_cover {
+    background-color: #000;
+    cursor: default;
+    filter: alpha(opacity=20);
+    opacity: 0.2;
+    position: fixed;
+    z-index: 19999;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    border: none;
+    zoom: 1;
+}
+
+.dhtmlx-info img, .dhtmlx_modal_box img {
+    float: left;
+    margin-right: 10px;
+}
+
+.dhtmlx-info img {
+    margin-left: -10px;
+}
+
+.dhtmlx-alert-error .dhtmlx_popup_title {
+    background-color: #ff6363;
+}
+
+.dhtmlx-confirm-error .dhtmlx_popup_title {
+    background-color: #84adff;
+}
+
+.dhtmlx-alert-error, .dhtmlx-confirm-error {
+    border: 1px solid #ff0000;
+}
+
+.dhtmlx_button, .dhtmlx_popup_button {
+    box-shadow: 0px 0px 4px #888;
+    border: 1px solid #838383;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx_button input, .dhtmlx_popup_button div {
+    border: 1px solid #FFF;
+    color: #000;
+    font-size: 14px;
+    font-family: Tahoma;
+    padding: 0px;
+    margin: 0px;
+    vertical-align: top;
+    height: 14px;
+    line-height: 16px;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx_button input:focus, .dhtmlx_button input:active, .dhtmlx_popup_button div:active, .dhtmlx_popup_button div:focus {    
+  background-color: #c6d6ff; 
+}
+
+.dhtmlx_popup_title {
+    color: #000;
+    height: 24px;
+    line-height: 18px;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: Tahoma;
+}
+
+.dhtmlx_popup_text {
+    margin: 15px 15px 5px 15px;
+    font-size: 13px;
+    font-family: Tahoma;
+    color: #000;
+    min-height: 24px;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.dhtmlx-info, .dhtmlx-error {
+    font-size: 14px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0px 0px 4px #000;
+    border-radius: 6px;
+    /* CSS3 */
+
+    -moz-border-radius: 6px;
+    /* Firefox */
+
+    -webkit-border-radius: 6px;
+    /* Safari, Chrome */
+}
+
+.dhtmlx-error {
+    color: red;
+}

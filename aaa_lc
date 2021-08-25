@@ -1,0 +1,11 @@
+select z.code,address_print_full(z1.addr,3) AS addr from  
+      (select distinct last_name,name,patron_name,code from
+      (select a.last_name,a.name,a.patron_name,b.code,count(*) over(partition by a.last_name,a.name,a.patron_name) as kol from clm_abon_tbl a
+    left join clm_paccnt_tbl b on a.id=b.id_abon where b.code is not null and length(b.code)=9) q
+    where kol>1 and code in(select y.code from acd_cabindication_tbl x join clm_paccnt_tbl y on x.id_paccnt=y.id)
+    and last_name||' '||name||' '||patron_name in(select a.last_name||' '||a.name||' '||a.patron_name 
+     from clm_abon_tbl a
+     join clm_paccnt_tbl paccnt ON paccnt.id_abon=a.id
+     where paccnt.archive='0' and paccnt.code='021023842') and code<>'021023842') z 
+      left join clm_paccnt_tbl z1 on z.code=z1.code
+      order by 1

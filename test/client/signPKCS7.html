@@ -1,0 +1,436 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="cache-control" content="no-cache; charset=cp1251"/>
+        <meta http-equiv="сache-сontrol" content="no-cache"/>
+        <meta http-equiv="pragma" content="no-cache"/>
+        <meta http-equiv="expires" content="0"/>
+        <title>PKCS7 Signer</title>
+        <link rel='stylesheet' type='text/css' href='plugins/message.css'/>
+        <script src="plugins/javaChecker.js?version=2.0" type="text/javascript" charset="cp1251"></script>
+        <script type="text/javascript">
+          //установить язык сообщений для JavaChecker ("ru", "uk", "en")          
+          JavaChecker.init("ru");
+          var javaIsOK = JavaChecker.verifyJava();//Java поддерживается браузером/ОС?
+          var browserInfo = JavaChecker.getBrowserInfo();//
+          var isIE7 = browserInfo.indexOf("7") !=  - 1 || browserInfo.indexOf("8") !=  - 1;// это IE7 или IE8
+          // ---------- дополнительно для информации на странице
+          var javaVersion = JavaChecker.getJavaVersion();//если Java установлена и разрешена, то имеем версию
+          var javaTxt = "НЕТ";
+          if (javaVersion) {
+              javaTxt = "ДА";
+          }
+
+          var jver = JavaChecker.getJavaVersion();
+          if (!jver)
+              jver = "-";
+          document.write("<b>Ваш компьютер:</b><br/>");
+          document.write("Java VM: Установлена = " + javaTxt + "; Версия = " + jver + ";<br/>");
+
+          document.write("Браузер: " + browserInfo + "; Платформа = " + navigator.platform + ";<br/>");
+          document.write("Система: " + JavaChecker.getOS() + ";<br/>");
+
+          // --------------
+          function cesaris_pin_callback(box) {
+              dhtmlx.modalbox.hide(box);
+              if (box.id == "cesaris_pin_ok") {
+                  var inputs = cesaris_pin_form.getElementsByTagName("input");
+                  getApplet().setPinPfx(inputs[0].value);
+                  inputs[0].value = "";
+              }
+              else {
+                  getApplet().setPinPfx(null);
+              }
+          }
+
+          var cesaris_pin_form;
+
+          function cesaris_pin_dialog() {
+              if (cesaris_pin_form == null) {
+                  cesaris_pin_form = dhtmlx.modalbox( {
+                      title : "<img src='plugins/resources/lock24.png'>  Ввод пароля (ПИН)    ", content : "cesaris_pin_box", hidden : true
+                  });
+              }
+
+              dhtmlx.modalbox(cesaris_pin_form);
+              document.getElementById("dhtmlx_passw").focus();
+          }
+
+          //передать в апплет выбранный pfx файл и затем из апплета вызвать ввод ПИН
+          function setPfxToApplet(input) {
+              var name = document.getElementById("pfx_filename");
+              if (name != null)
+                  name = name.value;
+              getApplet().selectPfx(input.value, name);
+          }
+
+          //копировать pfx в папку юзера, чтобы не выбирать каждый раз путь к нему
+          //независимо от того создавать копию или нет, здесь еще и парсится pfx
+          function copyPfx_callback(result) {
+              var applet = getApplet();
+              if (result == "1") {
+                  //если первый раз отказался, то для всех pfx в этой сессии тоже отказ от копии
+                  //это для юзеров со многими ключами/ от разных предприятий
+                  applet.setCreateCopyPfx(false);
+              }
+              applet.copyPfx(result);
+          }
+
+          var _ie = JavaChecker.isIE();
+
+          function viewSpiner(flag) {
+              var spiner = document.getElementById("Spinner");
+              try {
+                  if (flag) {
+                      spiner.style.display = "block";
+                  }
+                  else {
+                      spiner.style.display = "none";
+                  }
+              }
+              catch (ex) {
+                  ;
+              }
+          }
+
+          function getApplet() {
+              var app;
+              if (_ie)
+                  app = document.applets["signerApplet"];
+              else 
+                  app = document.embeds[0];
+              return app;
+          }
+
+          function startApplet() {
+
+              var appletHtml;
+              if (_ie) {
+                  //IE                  
+                  appletHtml = '<object id="signerApplet" name="Bazis Signer Client" classid="clsid:CAFEEFAC-0016-0000-FFFF-ABCDEFFEDCBA" width="1" height="1" declare="declare"> <param name="type" value="application/x-java-applet"/> <param name="code" value="com.amb.applet.view.SignerWin"/> <param name="codebase_lookup" value="false"/> <param name="codebase" value="./plugins/"/> <param name="cache_option" value="Plugin"/> <param name="cache_archive_ex" value="ambasn.jar;preload,ambprovider.jar;preload,ambapi.jar;preload,pdfapi.jar;preload"/>';
+                  appletHtml += ' <param name="cache_archive" value="ambclient.jar"/>';
+                  appletHtml += ' <param name="separate_jvm" value="true"/> <param name="language" value="ru"/> <param name="java_arguments" value="-Djnlp.packEnabled=true -Dsun.java2d.d3d=false -Dsun.java2d.noddraw=true"/> <\/object>';
+              }
+              else {
+                  //NETSCAPE, Chrome, Opera, Forefox.        
+                  appletHtml = '<embed id="signerApplet" name="Bazis Signer Client" width="1" height="1" type="application/x-java-applet" pluginspage="http://www.java.com/en/download/" code="com.amb.applet.view.SignerWin" codebase_lookup="false" codebase="./plugins/" cache_option="Plugin" cache_archive_ex="ambasn.jar;preload,ambprovider.jar;preload,ambapi.jar;preload,pdfapi.jar;preload" cache_archive="ambclient.jar" language="ru" separate_jvm="true" java_arguments="-Djnlp.packEnabled=true -Dsun.java2d.d3d=false -Dsun.java2d.noddraw=true"/>';
+              }
+              document.getElementById("cesaris_signer_div").innerHTML = appletHtml;
+
+              if (!javaIsOK) {
+                  viewSpiner(false);
+              }
+          }
+
+          function getUserAgent() {
+              //передача аплету инфо. о браузере
+              return navigator.userAgent;
+          }
+
+          //вызывается из апплета - загрузить список сертификатов при старте апплета
+          function onLoadPage() {
+              try {
+                  getCertList();
+              }
+              catch (ex) {
+                  alert(ex);
+              }
+          }
+
+          //запустить в апплете View выбранного сертификатa 
+          function viewCert() {
+              var index = document.getElementById("certlist").selectedIndex;
+              getApplet().viewCert(index);
+          }
+
+          //получить из аплета список сертификатов для select
+          //в список включаются только сертификаты, предназначенные для подписи (KeyUsage: signature)
+          //не включаются: не валидные по сроку действия и "только шифрование"
+          //поддерживаемые хранилища: все Microsoft, включая смарт-карты
+          //ПИН доступа к хранилищу (если нужен) запрашивается при операции "Подписать"
+          //можно также получить массивы строк:
+          //Issuer        getIssuers()
+          //DateFrom      getDateFrom()
+          //DateTo        getDateTo()
+          //SerialNumber  getSN()
+          function getCertList() {
+              try {
+                  var applet = getApplet();
+                  var select = document.getElementById("certlist");
+
+                  var jsArray = [];
+                  var jsArrayDate = [];
+
+                  //инициализация
+                  var s_;
+                  //Имя владельца сертификата
+                  if (navigator.userAgent.indexOf("Macintosh") !=  - 1 && navigator.userAgent.indexOf("Safari") !=  - 1) {
+                      s_ = applet.getCNAsString();
+                      jsArray = s_.split("|");
+                  }
+                  else {
+                      jsArray = applet.getCertCN();
+                  }
+                  //дата окончания действия сертификата
+                  if (navigator.userAgent.indexOf("Macintosh") !=  - 1 && navigator.userAgent.indexOf("Safari") !=  - 1) {
+                      s_ = applet.getDateToAsString();
+                      jsArrayDate = s_.split("|");
+                  }
+                  else {
+                      jsArrayDate = applet.getDateTo();
+                  }
+
+                  select.options.length = 0;
+                  for (var k = 0;k < jsArray.length;k++) {
+                      s_ = jsArray[k] + " ; Действителен до: " + jsArrayDate[k];
+                      select.options[select.options.length] = new Option(s_, k);
+                  }
+                  //число валидных сертификатов                  
+                  document.getElementById("certCount").value = applet.getCertCount();
+                  //остановить спинер
+                  viewSpiner(false);
+                  //очистить поля формы
+                  document.getElementById("myForm").reset();
+              }
+              catch (ex) {
+                  alert(ex);
+              }
+          }
+
+          //вызывается из апплета - взять индекс выбранного сертификата (! не изменять имя функции)
+          function getSelectedIndex() {
+              return document.getElementById("certlist").selectedIndex;
+          }
+
+          //вернуть из апплета подпись PKCS7 на страницу (! не изменять имя функции)
+          //signId - сюда помещаем подпись в Base64
+          function getSign() {
+              var data = getData();//подписываемые данные
+              var index = document.getElementById("certlist").selectedIndex;//выбранный индекс сертификата
+              var tsp = document.getElementById("TimeStampCheckBox").checked;
+              var crl = document.getElementById("CRLCheckBox").checked;
+              var isDetached = document.getElementById("isDetachedBox").checked;
+
+              var tspUrl = document.getElementById("hiddenTsaUrl").value;
+              if (tsp == false)
+                  tspUrl = "";
+
+              document.getElementById("signId").value = "";
+
+              data = getApplet().getSign(data, index, tspUrl, crl, isDetached);
+              if (data) {
+                  document.getElementById("signId").value = data;
+              }
+          }
+
+          //взять данные из dataId для их подписи для function getSign()
+          function getData() {
+              var data = "";
+              var obj = document.getElementById("dataId");
+              if (obj != null) {
+                  data = obj.value;
+              }
+              return data;
+          }
+
+          function signVerify() {
+              var applet = getApplet();
+              var data = document.getElementById("dataId").value;
+              var sign = document.getElementById("signId").value;
+              applet.verify(data, sign);
+          }
+
+          function crearPfxProperties() {
+              //очистить в конфиг.файле запись о PFX файле
+              var applet = getApplet();
+              var ret = applet.clearPfxProperties();
+              if (ret == 0) {
+                  //перезагрузить список сертификатов                  
+                  getCertList();
+              }
+          }
+
+          //получить ИНН выбранного сертификата
+          function getINN() {
+              var index = document.getElementById("certlist").selectedIndex;
+              var applet = getApplet();
+              document.getElementById("inn").value = applet.getINN(index);
+          }
+
+          //получить список ЕДРПОУ выбранного сертификата
+          function getEDRPOU() {
+              var index = document.getElementById("certlist").selectedIndex;
+              var applet = getApplet();
+              document.getElementById("edrpou").value = applet.getEDRPOU(index);
+          }
+
+          //выбрать pfx файл как хранилище ключей и их цепочки сертификатов          
+          function selectPfxPath() {
+              if (isIE7) {
+                  getApplet().selectPfxPath();
+              }
+              else {
+                  document.getElementById("selectPfxFileButtonID").click();
+              }
+          }
+        </script>
+    </head>
+    <body onload="startApplet();" style="background-color:#FFFFF9;">
+        <form id="myForm" action="">
+            <p style="color:blue;font-size:20px; font-style:italic;font-weight: bold;">Подпись в формате PKCS#7
+                                                                                       detached/attached signature
+                                                                                       (Windows XP/2003/2008/7/8/10; Mac
+                                                                                       OS X 10.7.3 и выше; Linux/Unix).</p>
+            <p style="font-size:12px;">
+                Требуется: виртуальная машина Java JVM JRE v.1.6/1.7/1.8. 
+                <br/>
+                 Поддерживаемые браузеры: Internet Explorer, Mozilla Forefox, Chrome (до 45.0), Opera (до 34.0), Yandex
+                (до 16.2), а также Avant, COMODO IceDragon и другие браузеры на движках Internet Explorer и Mozilla
+                Forefox. 
+                <br/>
+                 
+                <b>НЕ поддерживаемые браузеры:</b>
+                 Chrome 45.0 и выше; Opera 34.0 и выше; Yandex 16.2 и выше, и другие на движках Chrome 47.0 и выше.<br/>
+                 Поддерживаемые алгоритмы подписи (через X.509 сертификаты и Windows CSP): RSA,DSA,ECDSA,ДСТУ
+                4145-2002,ГОСТ 34.310-95,ГОСТ 34.310-2004,ГОСТ Р 34.10-2012. 
+                <br/>
+                 Поддерживаются все стандартизированные крипто модули (крипто провайдеры CSP), интегрированные с
+                операционной системой Windows, в том числе смарт-карты и eToken. 
+                <br/>При подписании могут добавляться к подписи: безопасная метка времени (timestamp), списки отзыва
+                     сертификата пользователя (CRL). 
+                <br/>Список сертификатов строится из доступных/установленных в операционной системе Windows, и/или из
+                     выбранного файла хранилищa *.pfx (стандарт PKCS#12), или&nbsp;файла *.kua (тех.спецификация
+                     Украины, PKCS#12-подобный).
+            </p>
+            <p></p>
+            <table cellspacing="2" cellpadding="3" border="0">
+                <tr align="left">
+                    <th>
+                        Список личных сертификатов:
+                        <input type="text" name="certCount" id="certCount" readonly="readonly" maxlength="3" size="3"/>
+                    </th>
+                </tr>
+                 
+                <tr>
+                    <td align="left">
+                        <select name="certlist" id="certlist" class="required">
+                            <option value="&lt;>">&lt;&gt;</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="button" onclick="viewCert();" value="Показать..."/>
+                    </td>
+                    <td>
+                        <input type="button" onclick="history.go(0);" value="Обновить"/>
+                    </td>
+                    <td width="15"></td>
+                    <td>
+                        <!------------ add start -->
+                        <!-- выбрать pfx файл как хранилище ключей и их цепочки сертификатов -->
+                        <input type="button" onclick="selectPfxPath()" value="Выбрать pfx файл..."/>
+                         
+                        <input type="button" id="selectPfxFileButtonID" style="display:none"
+                               onclick="cesaris_performClick('cesaris_handleFileID', '.pfx');"/>
+                         &nbsp;или&nbsp; 
+                        <a href="#" onclick="crearPfxProperties();">Очистить конфигурацию pfx.</a>
+                         
+                        <input type="file" id="cesaris_handleFileID" style="display:none"
+                               onchange="cesaris_handleFiles(this, 'pfx_filename', 'cesaris_pfxDataTagID');"/>
+                         
+                        <input type="text" id="pfx_filename" style="display:none" value=""/><!------------ add end -->
+                    </td>
+                </tr>
+            </table>
+            <table border="0">
+                <tr>
+                    <td style="font-weight: bold;" align="left">Данные:</td>
+                    <td id="Spinner" width="100%" align="center">
+                        <img src="plugins/spinner.gif" alt=""/>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                <textarea name="dataId" id="dataId" cols="100" rows="4"></textarea>
+            </p>
+            <table cellspacing="2" cellpadding="3" border="0">
+                <tr align="left">
+                    <th style="font-weight: normal;">
+                        <input checked="checked" type="checkbox" id="TimeStampCheckBox"/>
+                        Добавить к подписи метку времени | &nbsp;&nbsp;
+                        <input checked="checked" type="checkbox" id="CRLCheckBox"/>
+                        Добавить к подписи списки отзыва (CRL) | &nbsp;&nbsp;
+                    </th>
+                </tr><tr align="left">
+                    <th style="font-weight: normal;" align="left">
+                        <input checked="checked" type="checkbox" id="isDetachedBox"/>
+                        Подпись отсоединенная (detached) [от данных] | &nbsp;&nbsp;
+                    </th>
+                    <th>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" onclick="getSign()" value="Подписать"/>
+                    </th>
+                </tr>
+            </table>
+            <p style="font-weight: bold;">Подпись данных в формате PKCS#7:</p>
+            <p>
+                <textarea name="signId" id="signId" cols="100" rows="8"></textarea>
+            </p>
+            <p>
+                <input type="button" onclick="signVerify()" value="Проверить подпись..."/>
+            </p>
+            <p>
+                <input type="button" onclick="getINN()" value="Показать ИНН"/>
+                 
+                <input id="inn" value=""></input>
+                 
+                <input type="button" onclick="getEDRPOU()" value="Показать ЕДРПОУ"/>
+                 
+                <input id="edrpou" value=""></input>
+            </p>
+            <p>
+                Вопросы и предложения просьба направлять по адресу 
+                <a href="mailto:tech@itsway.kiev.ua?subject=signPKCS7">tech@itsway.kiev.ua</a>
+            </p>
+            <p>
+                <input type="hidden" id="hiddenTsaUrl" value="http://cesaris.itsway.kiev.ua/tsa/srv/"/>
+            </p>
+            <!------------ add start -->
+            <div id="dataDiv">
+                <textarea id="cesaris_pfxDataTagID" style="display:none" cols="100" rows="10"
+                          onchange="setPfxToApplet(this);"></textarea>
+            </div>
+            <div id="cesaris_pin_div">
+                <div id='cesaris_pin_box' style='display:none'>
+                    <div>
+                        Ввести пароль (ПИН) к ключу 
+                        <br/><br/>
+                    </div>
+                    <div>
+                        <label>
+                            <span style='color:Red;'>*</span>
+                        </label>Пароль&nbsp;<input id='dhtmlx_passw' type='password'/>
+                    </div>
+                    <div>
+                        <p align='center'>
+                            <input type='button' id='cesaris_pin_ok' value='Да' onclick='cesaris_pin_callback(this)'
+                                   style='width:80px;'/>
+                             
+                            <input type='button' id='cesaris_pin_no' value='Нет' onclick='cesaris_pin_callback(this)'
+                                   style='width:80px;'/>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="cesaris_signer_div" color="" style="color:rgb(66,198,255);"></div>
+            <!------------ add end -->
+        </form>
+    </body>
+</html>
+
+
+
+
+
+
+
+

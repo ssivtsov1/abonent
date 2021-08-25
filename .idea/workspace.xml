@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="28fa1ef4-1c5f-46a2-90e8-bdcf6e79b0c8" name="Default" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/PHPMailer/composer.json</pharConfigPath>
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="abonent" />
+  </component>
+  <component name="PhpServers">
+    <servers />
+  </component>
+  <component name="ProjectId" id="1aXQ1Yw26XJTQZXWrzNa64Ihphf" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../info" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.appearance" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="28fa1ef4-1c5f-46a2-90e8-bdcf6e79b0c8" name="Default" comment="" />
+      <created>1500445284939</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1500445284939</updated>
+      <workItem from="1500445286300" duration="3218000" />
+      <workItem from="1500465165105" duration="618000" />
+      <workItem from="1500466621323" duration="15000" />
+      <workItem from="1500469411884" duration="15000" />
+      <workItem from="1500545190669" duration="10725000" />
+      <workItem from="1500614152626" duration="22000" />
+      <workItem from="1500614220025" duration="9000" />
+      <workItem from="1500616618547" duration="12000" />
+      <workItem from="1500616714395" duration="10063000" />
+      <workItem from="1500876877247" duration="1060000" />
+      <workItem from="1500878254366" duration="4897000" />
+      <workItem from="1500886332040" duration="691000" />
+      <workItem from="1502798815749" duration="1463000" />
+      <workItem from="1503297786631" duration="747000" />
+      <workItem from="1503300879885" duration="7000" />
+      <workItem from="1503386376325" duration="641000" />
+      <workItem from="1503387317424" duration="2338000" />
+      <workItem from="1504164959289" duration="5641000" />
+      <workItem from="1504242195945" duration="1233000" />
+      <workItem from="1504593802913" duration="45000" />
+      <workItem from="1504593886156" duration="479000" />
+      <workItem from="1504594929603" duration="409000" />
+      <workItem from="1540358030286" duration="4274000" />
+      <workItem from="1545650567270" duration="1019000" />
+      <workItem from="1545652606968" duration="2029000" />
+      <workItem from="1545654649740" duration="1851000" />
+      <workItem from="1545656515000" duration="1486000" />
+      <workItem from="1545808486978" duration="1796000" />
+      <workItem from="1545810300532" duration="1851000" />
+      <workItem from="1545812165295" duration="1364000" />
+      <workItem from="1545820933357" duration="802000" />
+      <workItem from="1586879245054" duration="165000" />
+      <workItem from="1586879421371" duration="1274000" />
+      <workItem from="1586881228314" duration="1711000" />
+      <workItem from="1586930639057" duration="599000" />
+      <workItem from="1586932479518" duration="606000" />
+      <workItem from="1586934299138" duration="599000" />
+      <workItem from="1586956973489" duration="73000" />
+      <workItem from="1613466696482" duration="1332000" />
+      <workItem from="1618405350701" duration="41018000" />
+      <workItem from="1618921868879" duration="16736000" />
+      <workItem from="1619155932855" duration="68523000" />
+      <workItem from="1619695805554" duration="6846000" />
+      <workItem from="1620039900774" duration="50000" />
+      <workItem from="1620044667356" duration="2715000" />
+      <workItem from="1620721671572" duration="807000" />
+      <workItem from="1622440295108" duration="146000" />
+      <workItem from="1622457188385" duration="2761000" />
+      <workItem from="1623235087084" duration="4325000" />
+      <workItem from="1623303575139" duration="83000" />
+      <workItem from="1623845043073" duration="4665000" />
+      <workItem from="1623911768958" duration="27000" />
+      <workItem from="1624013259046" duration="63954000" />
+      <workItem from="1626069297142" duration="17000" />
+      <workItem from="1626348939797" duration="837000" />
+      <workItem from="1626421611214" duration="7532000" />
+      <workItem from="1626675311901" duration="39585000" />
+      <workItem from="1627456019282" duration="15000" />
+      <workItem from="1627476927643" duration="8247000" />
+      <workItem from="1627540763559" duration="31000" />
+      <workItem from="1627543318058" duration="930000" />
+      <workItem from="1627546675585" duration="5708000" />
+      <workItem from="1627633968645" duration="2330000" />
+      <workItem from="1628076879397" duration="664000" />
+      <workItem from="1628751552996" duration="4448000" />
+      <workItem from="1629360214142" duration="2770000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="630" y="227" width="657" height="595" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1624621714336">
+      <screen x="0" y="0" width="1920" height="1053" />
+    </state>
+    <state x="630" y="227" width="657" height="595" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1053@0.0.1920.1053" timestamp="1624621714336" />
+    <state x="693" y="227" width="532" height="595" key="FileChooserDialogImpl" timestamp="1629362982693">
+      <screen x="0" y="0" width="1920" height="1053" />
+    </state>
+    <state x="693" y="227" width="532" height="595" key="FileChooserDialogImpl/0.0.1920.1053@0.0.1920.1053" timestamp="1629362982693" />
+    <state x="520" y="313" key="com.intellij.ide.util.TipDialog" timestamp="1627633969117">
+      <screen x="0" y="0" width="1920" height="1053" />
+    </state>
+    <state x="520" y="313" key="com.intellij.ide.util.TipDialog/0.0.1920.1053@0.0.1920.1053" timestamp="1627633969117" />
+    <state x="491" y="100" width="937" height="850" key="find.popup" timestamp="1627626891301">
+      <screen x="0" y="0" width="1920" height="1053" />
+    </state>
+    <state x="491" y="100" width="937" height="850" key="find.popup/0.0.1920.1053@0.0.1920.1053" timestamp="1627626891301" />
+  </component>
+</project>

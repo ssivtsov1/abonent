@@ -1,0 +1,30 @@
+select distinct i.id_paccnt,i.id_meter,i.id_prev,i.id_zone,i.id_typemet,i.id_energy,i.mmgg,z.note AS zone_name,
+ m.num_meter,1 AS koef,i.carry,i.dat_ind as dat_prev_ind,vp.value AS value_prev,i.value AS value_ind,i.value AS calc_ind_pr,
+ fun_mmgg() AS current_mmgg,max(q.value_new) as val_new,q.dat_ind as dat_new
+ from acm_indication_tbl i
+ join clm_paccnt_tbl paccnt ON (paccnt.id=i.id_paccnt)
+ join clm_meterpoint_tbl m ON (m.id=i.id_meter)
+ join clm_meter_zone_tbl mz ON (mz.id_meter=m.id)
+ join eqk_zone_tbl z ON (z.id=mz.id_zone and i.id_zone=z.id)
+ left join acm_indication_tbl vp ON (vp.id=i.id_prev)
+ join (select id_paccnt,max(dat_ind) as dat_dd,id_zone from acm_indication_tbl 
+ --where id_operation not in(23,14,25,26) 
+ group by id_paccnt,id_zone) acm ON (i.id_paccnt=acm.id_paccnt and i.id_zone=acm.id_zone)
+ left join
+ (select aa.id_paccnt,aa.dat_ind,aa.id_zone,aa.num_eqp,ab.value_ind as value_new from
+(select id_paccnt,trim(num_eqp) as num_eqp,carry,max(dat_ind) as dat_ind,id_zone,max(mmgg) as mmgg
+ from acd_cabindication_tbl c
+ join clm_paccnt_tbl paccnt ON (paccnt.id=c.id_paccnt)
+ where paccnt.code='011030586' and 
+ dat_ind in(select max(dat_ind) from acd_cabindication_tbl,clm_paccnt_tbl paccnt
+ where paccnt.id=acd_cabindication_tbl.id_paccnt and paccnt.code='011030586')
+ group by id_paccnt,trim(num_eqp),carry,id_zone) aa
+ join acd_cabindication_tbl ab on 
+ aa.id_paccnt=ab.id_paccnt and aa.id_zone=ab.id_zone and aa.dat_ind=ab.dat_ind and aa.mmgg=ab.mmgg
+ ) q on i.id_paccnt=q.id_paccnt and q.id_zone=i.id_zone 
+ where paccnt.code='011030586' and i.dat_ind=dat_dd 
+ group by 
+ i.id_paccnt,i.id_meter,i.id_prev,i.id_zone,i.id_typemet,i.id_energy,i.mmgg,z.note,
+ m.num_meter,i.carry,i.dat_ind ,vp.value,i.value,q.dat_ind 
+ order by i.mmgg desc,i.value desc
+ limit 20

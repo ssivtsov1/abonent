@@ -1,0 +1,15 @@
+ select * from
+    (select *, row_number() OVER() AS rownum from
+    (select distinct c.num_eqp,c.carry,c.dat_ind::date as dat_ind,i.value as value_prev,def_zone(c.id_zone) as zone,c.id_zone,
+    c.value_ind as value_new,
+    case when (c.value_ind-i.value)<0 then 0 else c.value_ind-i.value end as value_diff,i.id_prev,i.id_paccnt,j.dat_ind as dat_prev
+ from acd_cabindication_tbl c
+ join clm_paccnt_tbl paccnt ON (paccnt.id=c.id_paccnt)
+ left join (select id_paccnt,id_zone,max(dat_ind) as dat_ind from acm_indication_tbl
+ where id_paccnt in (select id from clm_paccnt_tbl where code='011039519') group by id_paccnt,id_zone) j on c.id_paccnt=j.id_paccnt and c.id_zone=j.id_zone 
+ left join acm_indication_tbl i on j.id_paccnt=i.id_paccnt and j.id_zone=i.id_zone and i.dat_ind=j.dat_ind
+ where paccnt.code='011039519' --='2020-01-01'
+ order by 3 desc,value_new desc) w) w1
+ where rownum <= case when id_zone in(9,10) then 2
+  when id_zone in(6,7,8) then 3 
+  when id_zone in(0) then 1 end

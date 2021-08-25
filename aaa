@@ -1,0 +1,15 @@
+select distinct i.id_paccnt,i.id_meter,i.id_prev,i.id_zone,i.id_typemet,i.id_energy,i.mmgg,z.note AS zone_name,
+ m.num_meter,1 AS koef,i.carry,i.dat_ind as dat_prev_ind,vp.value AS value_prev,i.value AS value_ind,i.value AS calc_ind_pr,
+ fun_mmgg() AS current_mmgg,t.name as indic_type
+ from acm_indication_tbl i
+ join clm_paccnt_tbl paccnt ON (paccnt.id=i.id_paccnt)
+ join clm_meterpoint_tbl m ON (m.id=i.id_meter)
+ join clm_meter_zone_tbl mz ON (mz.id_meter=m.id)
+ join eqk_zone_tbl z ON (z.id=mz.id_zone and i.id_zone=z.id)
+ join acm_indication_tbl vp ON (vp.id=i.id_prev)
+ join cli_indic_type_tbl t ON (t.id=i.id_operation) 
+ where paccnt.code='011039519' 
+ --and i.id_operation not in(23,14,25,26)
+ and i.dat_ind>='2018-12-31'
+ order by i.mmgg desc, i.dat_ind desc,value_prev desc
+ limit 18
