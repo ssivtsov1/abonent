@@ -114,11 +114,47 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST') {
 //             limit 1"; // AND reg_date='$date'
 
 //              $conn="host=192.168.55.10 port=5432 dbname=cek user=local password= connect_timeout=5";
+
+              switch($_SESSION['db']) {
+                  case 1:
+                      $code_res = '06';
+                      break;
+                  case 2:
+                      $code_res = '07';
+                      break;
+                  case 3:
+                      $code_res = '08';
+                      break;
+                  case 4:
+                      $code_res = '04';
+                      break;
+                  case 5:
+                      $code_res = '03';
+                      break;
+                  case 6:
+                      $code_res = '02';
+                      break;
+                  case 7:
+                      $code_res = '05';
+                      break;
+                  case 8:
+                      $code_res = '01';
+                      break;
+              }
+
+//              return;
+
     $conn="host=192.168.54.7 port=5432 dbname=cek user=cabinet password=25cabinet_new_password! connect_timeout=5";  // Реальный сервер call - центра
               $cc_c = pg_connect($conn);
               $sql_c="select b.account,b.accountid from counter a 
                             left join accounts b on a.accountid=b.accountid
-                            where trim(a.sn)='$phone'  limit 1";
+                            where trim(a.sn)='$phone'  and sapid is not null 
+                            and substr(b.account,1,2) = '$code_res'
+                            limit 1";
+
+//              debug($sql_c);
+//              return;
+
               $result = pg_query($cc_c,$sql_c);
               $row = pg_fetch_array($result);
               $lic = trim($row[0]);   // Лицевой счет из САПа

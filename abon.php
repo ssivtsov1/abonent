@@ -61,6 +61,7 @@
    // Соединение с САП
     $lSoap_s= 'CKSOAPMETER';
     $pSoap_s= 'aTmy9Z<faLNcJ))gTJMwYut(#eJ)NSlcY[2%Meo/';
+
 //    $hSoap_s = 'http://erpqs1.esf.ext:8000/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/scs/sap/zint_ws_upl_mrdata?sap-client=100';
     $hSoap_s = 'http://erppr3.esf.ext:8000/sap/bc/srt/wsdl/flv_10002A1011D1/bndg_url/sap/bc/srt/scs/sap/zint_ws_upl_mrdata?sap-client=100'; // prod
     $client = new \SoapClient(
@@ -113,10 +114,15 @@
                                 $vald = $val;
                                 $val1 = date('d.m.Y', strtotime($val1));
 
+//                                $date = new DateTime($val1);
+//                                $date->modify("-3 day");
+//                                $val1 = $date->format('Y-m-d');
+//                                debug($val1);
+
                                 $dd = date("j", strtotime($val1));
                                 $dd = intval($dd);
 
-                                if ($dd >= 1 && $dd <= 5) {
+                                if ($dd >= 1 && $dd <= 3) {
                                     $date = new DateTime($val1);
                                     $date->modify("-$dd day");
                                     $val1 = $date->format('Y-m-d');
@@ -279,9 +285,11 @@
                         $ablstat = 0;
                         $circle=0;
 //                        while($ablstat==0) {
+//                        if($ablstat == 0) {  // поставить надо в 0
                             $result = $client->__soapCall('ZintUplMrdataInd', array($params));
                             $done = $result->Retdata->item->Retcode;
                             $ablstat = $result->Retdata->item->Ablstat;
+//                        }
                             $circle++;
 //                            if($circle>50) break;
 //                        }
@@ -300,6 +308,11 @@
 //                            debug($bukrs);
 //                        }
 
+                        // Логирование показаний на PostGreSQL сервер
+                        $sql_log = "INSERT INTO log_cabinet (id,lic,date_t,val11,val21,val22,val31,val32,val33,status)
+                                            VALUES(CAST(EXTRACT(EPOCH FROM NOW()) * 1000 AS BIGINT),'$account_sap',now(),$value_sap,
+                                             0,0,0,0,0,1)";
+                        pg_query($sql_log);
                     }
 
                 }
@@ -342,9 +355,17 @@
                         )
                         )
                     );
+
                     $result = $client->__soapCall('ZintUplMrdataInd', array($params));
 //                        debug($result);
+
+
 //                    $done = $result->Retdata->item->Retcode;
+                    // Логирование показаний на PostGreSQL сервер
+                    $sql_log = "INSERT INTO log_cabinet (id,lic,date_t,val11,val21,val22,val31,val32,val33,status)
+                                            VALUES(CAST(EXTRACT(EPOCH FROM NOW()) * 1000 AS BIGINT),'$account_sap',now(),0,
+                                             $value_sap9,$value_sap10,0,0,0,1)";
+                    pg_query($sql_log);
                 }
 
                 if ($sign_counter == 3 && $flag_err == 0) {
@@ -392,6 +413,11 @@
                     $result = $client->__soapCall('ZintUplMrdataInd', array($params));
 //                        debug($result);
 //                    $done = $result->Retdata->item->Retcode;
+                    // Логирование показаний на PostGreSQL сервер
+                    $sql_log = "INSERT INTO log_cabinet (id,lic,date_t,val11,val21,val22,val31,val32,val33,status)
+                                            VALUES(CAST(EXTRACT(EPOCH FROM NOW()) * 1000 AS BIGINT),'$account_sap',now(),0,
+                                             0,0,$value_sap8,$value_sap7,$value_sap6,1)";
+                    pg_query($sql_log);
                 }
             }
             fputs($f, $insert);
@@ -434,6 +460,25 @@
 
 
     switch ($_GET['page']) {
+     case 9:
+         // Архів споживання
+         $CT = getCompleteTable('period,type_meter,zone,demand', 'demand_old', $Where);
+         $out .= "<div class='abon_marg w70'><label class='label label-default'>Архів споживання</label>$CT</div>";
+         $CT1 = getCompleteTable('mmgg,zone,demand', 'replace_cnt_demand_old', $Where);
+         if(!empty($CT1))
+             $out .= "<div class='abon_marg w70'><label class='label label-default'>Архів споживання при заміні лічильника</label>$CT1</div>";
+
+         // Удаляем временную таблицу
+         $sql = "select id from clm_paccnt_tbl paccnt where $Where";
+         $result = pg_query($sql);
+         $row = pg_fetch_all($result);
+         $id = $row[0]['id']; // id пользователя - нужен в дальнейшем
+         $tname = 'tmp_demand_'.$id;  // Имя временной таблицы
+        $sql = "drop table $tname";
+        $result = pg_query($sql);
+//         $row = pg_fetch_all($result);
+
+         break;
       case 1:
       default:
          // echo $Where;
@@ -469,7 +514,10 @@
                 FROM cc_crash a 
                 left JOIN cc_crash_account b ON 
                 a.accidentid=b.accidentid
-                WHERE a.accbegin_date>='$date_av'  and b.accountid like '%$lic%'";
+                WHERE 
+                /*a.accbegin_date>='$date_av'  and */ 
+                b.accountid like '%$lic%'
+                order by a.accbegin_date desc";
 
 //        a.accbegin_date>='2021-07-22' and a.planend_date<='2021-07-24'
 //        and  a.planend_date>='2021-07-23'
@@ -477,6 +525,7 @@
             $result = $conn->query($sql);
 
 //        debug($result);
+
         if($result->num_rows>0) {
             $CT32 = "<table class='table table-bordered table-condensed table-striped'>
                 <thead class='bg-success'>
@@ -518,6 +567,7 @@
     }
         $li[1] = 'class="active"';
         $out .= '<a href="http://cek.dp.ua/Connect" target="_blank" class="btn btn-default" style="margin-left: 10px">Приєднання до електромереж</a>';
+        $out .= '<a href="http://localhost/cekservice/web/get_message?lic=' . $_SESSION['id'] . '"' . ' target="_blank" class="btn btn-default" style="margin-left: 10px">Замовлення послуги для повідомлення по відключенням</a>';
         break;
 //    }
 //    else
@@ -539,6 +589,10 @@
         break;
 
       case '3':
+
+//          debug($Where);
+
+
 //      при нажатии на кнопку Споживання
 //        $CT33 = getCompleteTable('debet_e|num', 'debet_avans', $Where); // avans_val|num,
 
@@ -592,14 +646,19 @@
             $result = objectToArray($adapter->soap_blina($arr[$proc], $proc));
 //           $q_zones = $result['EtDeviceInfo']['item']['Zones'] ;  // кол-во зон
 //            debug($result['EtMeterData']['item']);
-           if(!isset($result['EtMeterData']['item'][0]))
-               $result['EtMeterData']['item'][0]=$result['EtMeterData']['item'];
+            $srctxt = '';
+           if(!isset($result['EtMeterData']['item'][0])) {
+               $result['EtMeterData']['item'][0] = $result['EtMeterData']['item'];
+               $srctxt = $result['EtScales']['item'][0]['Srctxt'];
+           }
 
 //            debug($result['EtMeterData']['item']);
             // Сборка данных
             $i=0;
             $j=0;
             $t='';
+
+//            debug($result['EtMeterData']['item']);
 
             foreach ($result['EtMeterData']['item'] as $v){
               if ($q_zones>1)
@@ -642,13 +701,18 @@
 
             }
 
+
             // Правильная сортировка в случае замены счетчика
             $prev_begin='';
+            $prev_end_1 = strtotime('01.03.2021');
+            $prev_end = '01.03.2021';
             $p_end = '';
             $index = -1;
+            $flag_process=0;
+            $ic=0;
 
             foreach ($mas as $k=>$v) {
-
+                $ic++;
                 $period = $v['period'];
                 $p_begin = substr($period,0,10);
                 $p_end = trim(substr($period,13));
@@ -658,10 +722,16 @@
                 if($p_begin=='00.00.0000') $p_begin = '01.03.2021';
                 $p1=date("d.m.Y", strtotime($p_begin));
                 $p2=date("d.m.Y", strtotime($p_end));
+                $p2_1=strtotime($p_end);
+                if($p2_1>$prev_end_1 &&  $flag_process==0 && $ic>1)
+                    $flag_process=1;
 
-//                debug($prev_begin);
-//                debug($p1);
-//                debug($index);
+
+//                debug($prev_end_1);
+//                debug($prev_end);
+//                debug('p2_1='.$p2_1);
+//                debug('p2='.$p2);
+//                debug('flag_process='.$flag_process);
 
                 if(strlen($prev_begin)>0){
                     if(strtotime($p1)>strtotime($prev_begin)){
@@ -672,6 +742,7 @@
 
                 $prev_begin = $p1;
                 $prev_end = $p2;
+                $prev_end_1 = $p2_1;
             }
            $y = count($mas);
 
@@ -692,9 +763,13 @@
                     $mas1[$i] = $mas[$i];
                 }
             }
+
+//            debug($flag_process);
 //            debug($mas1);
+
             // Формируем новый порядок в случае замены счетчика
-            if($index<>-1) {
+        if($flag_process==1) {
+            if ($index <> -1) {
                 $old = 0;
                 $j = 1;
                 $y = count($mas1);
@@ -707,8 +782,29 @@
                     $old = $n;
                 }
             }
+        }
 
+    if($flag_process==0) {
+        if ($index <> -1) {
+            $old = 0;
+            $j = 1;
+            $y = count($mas1);
+            for ($i = 0; $i < $y; $i++) {
+                $n = $mas1[$i]['order'];
+//                            if ($n <> $old && $old <> 0) {
+//                                $j++;
+//                            }
+//                            $mas1[$i]['order'] = $j;
+//                            $old = $n;
+                $mas2[$n - 1] = $mas1[$i];
+            }
+            $mas1 = $mas2;
+        }
+    }
+
+//            debug($mas1);
             $mas = sort_nested_arrays($mas1,['order'=>'asc','zone1'=>'asc']);  // Сортировка зон
+
 //            debug($mas);
 
             $CT32 = "<table class='table table-bordered table-condensed table-striped'>
@@ -736,9 +832,10 @@
             $CT32.=$integra;
 
             $out .= "<div class='abon_marg w50'><label class='label label-default'>Споживання</label>$CT32</div>";
+
+            $out .= '<a href="/abonent/abon.php?page=9" target="_blank" class="btn btn-default" style="margin-left: 10px">Архів споживання</a><br><br>';
+
             switchServerConnect();
-
-
 
    break;
 
@@ -753,6 +850,11 @@
         break;
       case '4':
 //      при нажатии на кнопку "Введення показань"
+    $date_input = date('Y-m-d');
+    $dd_input = (int) date("j", strtotime($date_input));
+
+
+
     if ($_SESSION['lk_sap'] == 1) {
 //          Синхронизация счетчика с САП - если счетчик менялся
         $result = pg_query(getArrayFromBase('meter1', $Where));
@@ -769,6 +871,7 @@
         $row = pg_fetch_array($result1);
         $n_cnt_last = trim($row['num_eqp']);
         if ($n_cnt != $n_cnt_last) {
+
             $cols = 'dat_prev,code,id_paccnt,id_meter,id_previndic,id_zone,id_meter_type,kind_energy,
             mmgg,num_eqp,koef,carry,dat_ind,value_prev,value_ind,calc_ind_pr';
             $insert = "INSERT INTO acd_cabindication_tbl ($cols) VALUES (";
@@ -803,20 +906,33 @@
 //        debug($hdays);
 //        debug($let_input);
     }
-        $let_input=1;
+            $let_input=1;
+            if($dd_input==4 || $dd_input==5) {
+                $let_input=0;
+//                echo 'Увага! 4 та 5 числа кожного місяця показання в кабінет не вводяться. Проходять розрахунки.';
+//                return;
+            }
+
+
         //if (getDataById($BaseName, $_SESSION['id']) > 0) {
         if($let_input==0) {
           //$CT41 = getCompleteTable('num_eqp,carry|int,now|date,value_prev|num,value_new|num', 'indication2', $Where . " and mmgg='" . $_SESSION['fun_mmgg'] . "'");
           $CT41 = getCompleteTable('num_eqp,carry|int,zone,value_prev|num,dat_prev|date,value_new|num,dat_ind|date,value_diff|num', 'indication2', $Where . " and mmgg='" . $_SESSION['fun_mmgg'] . "'",null,1);
-          if($hdays==0 || is_null($hdays))
-              $out .= "<div class='abon_marg am1 w70'>$CT41".
-                  "<span class='label label-danger curp' style='margin-left: 15px'>Показники можна вводити один раз
-                    в десять днів, останній раз показники вводились $hprev. [$last_p кВт/год]</span>";
+//          if($hdays==0 || is_null($hdays))
+//              $out .= "<div class='abon_marg am1 w70'>$CT41".
+//                  "<span class='label label-danger curp' style='margin-left: 15px'>Показники можна вводити один раз
+//                    в десять днів, останній раз показники вводились $hprev. [$last_p кВт/год]</span>";
+//
+//          else
+//          $out .= "<div class='abon_marg am1 w70'>$CT41".
+//              "<span class='label label-danger curp' style='margin-left: 15px'>Показники можна вводити один раз
+//                    в десять днів, останній раз показники вводились $hprev.</span></div>";
 
-          else
-          $out .= "<div class='abon_marg am1 w70'>$CT41".
-              "<span class='label label-danger curp' style='margin-left: 15px'>Показники можна вводити один раз
-                    в десять днів, останній раз показники вводились $hprev.</span></div>";
+            $out .= "<div class='abon_marg am1 w70'>$CT41".
+              "<span class='label label-danger curp' style='margin-left: 15px'>
+                    Увага! Четвертого та п'ятого числа кожного місяця показання в кабінет не вводяться. Проходять розрахунки.
+                </span></div>";
+
           
 //<span style='margin-left: 15px'>Для введення нових показань натисніть кнопку Видалити</span></div>";
 
@@ -833,10 +949,10 @@
 //
 //          $out = "<div class='abon_marg am1 w70'><form method='POST'>$CT41<button type='submit' class='btn btn-primary'>Зберегти</button></form></div>";
             if ($_SESSION['lk_sap'] == 0) {
-                $CT41 = getCompleteTable('num_meter,zone_name,carry|int,dat_prev_ind|date,value_ind|num,val_new|num,value_new|input,date_new|input_date', 'indication', $Where, null, 1);
+                $CT41 = getCompleteTable('num_meter,zone_name,carry|int,auto_date,auto_val,dat_prev_ind|date,value_ind|num,val_new|num,value_new|input,date_new|input_date', 'indication', $Where, null, 1);
             }
             if ($_SESSION['lk_sap'] == 1) {
-                $CT41 = getCompleteTable('num_meter,zone_name,carry|int,dat_prev,val_prev|num,value_new|input,date_new|input_date', 'indication', $Where, null, 1);
+                $CT41 = getCompleteTable('num_meter,zone_name,carry|int,auto_date,auto_val,dat_prev_ind|date,val_prev|num,value_new|input,date_new|input_date', 'indication', $Where, null, 1);
             }
 
 //            $out .= "<div class='abon_marg am1 w70  '><form method='POST'>$CT41<button type='submit' class='btn btn-primary'>Зберегти</button></form>

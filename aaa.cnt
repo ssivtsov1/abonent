@@ -1,1 +1,1 @@
-host=192.168.55.1 port=5432 dbname=abn_gv user=local password= 
+host=192.168.55.1 port=5432 dbname=abn_dn user=local password= 

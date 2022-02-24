@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="28fa1ef4-1c5f-46a2-90e8-bdcf6e79b0c8" name="Default" comment="" />
+    <list default="true" id="28fa1ef4-1c5f-46a2-90e8-bdcf6e79b0c8" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a.php" beforeDir="false" afterPath="$PROJECT_DIR$/a.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aa1" beforeDir="false" afterPath="$PROJECT_DIR$/aa1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aaa" beforeDir="false" afterPath="$PROJECT_DIR$/aaa" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aaa.cnt" beforeDir="false" afterPath="$PROJECT_DIR$/aaa.cnt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aaa.psw" beforeDir="false" afterPath="$PROJECT_DIR$/aaa.psw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aaa_" beforeDir="false" afterPath="$PROJECT_DIR$/aaa_" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aaa_a" beforeDir="false" afterPath="$PROJECT_DIR$/aaa_a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abon.php" beforeDir="false" afterPath="$PROJECT_DIR$/abon.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ccon_soap.php" beforeDir="false" afterPath="$PROJECT_DIR$/ccon_soap.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/config.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/func.php" beforeDir="false" afterPath="$PROJECT_DIR$/func.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/head.php" beforeDir="false" afterPath="$PROJECT_DIR$/head.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/register.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/translate_ua.php" beforeDir="false" afterPath="$PROJECT_DIR$/translate_ua.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,10 +36,14 @@
   <component name="FavoritesManager">
     <favorites_list name="abonent" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="PhpServers">
     <servers />
   </component>
   <component name="ProjectId" id="1aXQ1Yw26XJTQZXWrzNa64Ihphf" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -30,7 +51,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../info" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.appearance" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
@@ -127,6 +148,44 @@
       <workItem from="1628076879397" duration="664000" />
       <workItem from="1628751552996" duration="4448000" />
       <workItem from="1629360214142" duration="2770000" />
+      <workItem from="1629968075893" duration="5528000" />
+      <workItem from="1630656771714" duration="1420000" />
+      <workItem from="1630659256179" duration="721000" />
+      <workItem from="1632204501160" duration="54000" />
+      <workItem from="1632740528012" duration="1315000" />
+      <workItem from="1632825888496" duration="1525000" />
+      <workItem from="1633070914513" duration="1812000" />
+      <workItem from="1633335061913" duration="3821000" />
+      <workItem from="1633417037765" duration="621000" />
+      <workItem from="1633689312504" duration="2049000" />
+      <workItem from="1635770967470" duration="34000" />
+      <workItem from="1635855263386" duration="4613000" />
+      <workItem from="1635920643592" duration="2966000" />
+      <workItem from="1636009885704" duration="10339000" />
+      <workItem from="1636093858346" duration="3406000" />
+      <workItem from="1636104813434" duration="1591000" />
+      <workItem from="1636362053403" duration="599000" />
+      <workItem from="1636442481181" duration="1231000" />
+      <workItem from="1636463723138" duration="1496000" />
+      <workItem from="1636532874501" duration="4772000" />
+      <workItem from="1636633805195" duration="143000" />
+      <workItem from="1638170280996" duration="616000" />
+      <workItem from="1643011388757" duration="5410000" />
+      <workItem from="1643358121008" duration="1587000" />
+      <workItem from="1643608536587" duration="4295000" />
+      <workItem from="1643700510492" duration="8430000" />
+      <workItem from="1643962288411" duration="1199000" />
+      <workItem from="1644216654736" duration="599000" />
+      <workItem from="1644304322822" duration="16000" />
+      <workItem from="1644567476482" duration="9631000" />
+      <workItem from="1644819896091" duration="597000" />
+      <workItem from="1644911720612" duration="605000" />
+      <workItem from="1645190220086" duration="755000" />
+      <workItem from="1645428515117" duration="33000" />
+      <workItem from="1645450768421" duration="5354000" />
+      <workItem from="1645515475789" duration="5873000" />
+      <workItem from="1645597702379" duration="1229000" />
+      <workItem from="1645686526634" duration="599000" />
     </task>
     <servers />
   </component>
@@ -142,21 +201,22 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="630" y="227" width="657" height="595" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1624621714336">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="693" y="253" width="532" height="595" key="FileChooserDialogImpl" timestamp="1645004505032">
+      <screen x="0" y="0" width="1920" height="1173" />
     </state>
-    <state x="630" y="227" width="657" height="595" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1053@0.0.1920.1053" timestamp="1624621714336" />
-    <state x="693" y="227" width="532" height="595" key="FileChooserDialogImpl" timestamp="1629362982693">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="693" y="227" width="532" height="595" key="FileChooserDialogImpl/0.0.1920.1053@0.0.1920.1053" timestamp="1638172371372" />
+    <state x="693" y="253" width="532" height="595" key="FileChooserDialogImpl/0.0.1920.1173@0.0.1920.1173" timestamp="1645004505032" />
+    <state x="520" y="349" key="com.intellij.ide.util.TipDialog" timestamp="1645515484468">
+      <screen x="0" y="0" width="1920" height="1173" />
     </state>
-    <state x="693" y="227" width="532" height="595" key="FileChooserDialogImpl/0.0.1920.1053@0.0.1920.1053" timestamp="1629362982693" />
-    <state x="520" y="313" key="com.intellij.ide.util.TipDialog" timestamp="1627633969117">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="520" y="349" key="com.intellij.ide.util.TipDialog/0.0.1920.1173@0.0.1920.1173" timestamp="1645515484468" />
+    <state x="491" y="111" width="937" height="947" key="find.popup" timestamp="1643704520421">
+      <screen x="0" y="0" width="1920" height="1173" />
     </state>
-    <state x="520" y="313" key="com.intellij.ide.util.TipDialog/0.0.1920.1053@0.0.1920.1053" timestamp="1627633969117" />
-    <state x="491" y="100" width="937" height="850" key="find.popup" timestamp="1627626891301">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="491" y="111" width="937" height="947" key="find.popup/0.0.1920.1173@0.0.1920.1173" timestamp="1643704520421" />
+    <state x="536" y="264" key="run.anything.popup" timestamp="1643706651669">
+      <screen x="0" y="0" width="1920" height="1173" />
     </state>
-    <state x="491" y="100" width="937" height="850" key="find.popup/0.0.1920.1053@0.0.1920.1053" timestamp="1627626891301" />
+    <state x="536" y="264" key="run.anything.popup/0.0.1920.1173@0.0.1920.1173" timestamp="1643706651669" />
   </component>
 </project>

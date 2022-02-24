@@ -1014,6 +1014,7 @@ function getArrayFromBase($page, $where = NULL)
         );
 
         $result = objectToArray($adapter->soap_blina($arr[$proc], $proc));
+//        debug($res);
 //        debug($result);
 //        return 'select 1';
 
@@ -1040,6 +1041,7 @@ function getArrayFromBase($page, $where = NULL)
 //        debug($result2);
 //        return 'select 1';
 
+        $srctxt = '';
         if (isset($result2['EvZones'])) {
             $typ_li4 = $result2['EvBauform'];
             $counterSN = $result2['EvSernr'];
@@ -1053,6 +1055,7 @@ function getArrayFromBase($page, $where = NULL)
                 $MrvalPrev = 0;
                 $MrdatPrev = '';
                 $Zwart='';
+                $srctxt = $result2['EtScales']['item'][0]['Srctxt'];
             }
             $MrvalPrev = $result2['EtScales']['item']['MrvalPrev'];
             $MrdatPrev = $result2['EtScales']['item']['MrdatPrev'];
@@ -1065,6 +1068,148 @@ function getArrayFromBase($page, $where = NULL)
 
 
         switch ($page) {
+            // Архив старых данных по потреблению (берет данные из abn)
+            // Срабатывает при нажатии на кнопку "Архів споживання" року в розділі "Споживання"
+            case 'demand_old':
+                $sql = "select id from clm_paccnt_tbl paccnt where $where";
+                $result = pg_query($sql);
+                $row = pg_fetch_all($result);
+                $id = $row[0]['id']; // id пользователя - нужен в дальнейшем
+                if(is_null($id)) {
+                    debug('Дані відсутні');
+                    return;
+                }
+                $tname = 'tmp_demand_'.$id;  // Имя временной таблицы
+//                debug($tname);
+            // Формируем временную таблицу по потреблению (запрос взят из программы abn при нажатии на кнопку Сальдо)
+                $sql = "select mmgg,value,id_operation,id_zone,dat_ind,value_diff,type_meter into $tname from (
+ select n.id, n.dt, n.id_person, n.id_paccnt, n.dat_ind, n.id_meter, n.id_typemet, 
+        n.carry, n.coef_comp, n.id_zone, n.num_eqp, n.id_energy, n.id_operation, 
+        n.value, n.id_prev, n.value_diff, n.value_cons, n.id_ind, n.id_work, n.mmgg, 
+        n.flock, n.id_corr, n.mmgg_corr, n.indic_real,
+ m.name as type_meter,i2.value as p_indic,i2.dat_ind as p_dat_ind,
+ CASE WHEN n.id_ind is null and n.id_work is null THEN 1 ELSE 0 END as is_manual,
+ ph.num_pack, ww.id_work as id_hwork, w.idk_work, 
+ coalesce(n.indic_real,pd.indic_real::int) as indic_real,
+ --case WHEN exists (select c.id from acm_indication_h as c where c.id_paccnt = $id and c.id = n.id and c.mmgg_change <>n.mmgg ) THEN 1 ELSE 0 END as is_corrected,
+ --case WHEN not exists (select c.id from acm_indication_tbl as c where c.id_paccnt = $id and c.mmgg =n.mmgg and c.id_zone = n.id_zone and c.dat_ind > n.dat_ind) THEN 1 ELSE 0 END as is_last,
+ u1.name as user_name , 1 as ind_mode
+ from acm_indication_tbl as n
+ left join eqi_meter_tbl as m on (m.id = n.id_typemet)
+ left join acm_indication_tbl as i2 on (i2.id = n.id_prev)
+ left join ind_pack_data as pd on (n.id_ind = pd.id)
+ left join ind_pack_header as ph on (pd.id_pack = ph.id_pack)
+ left join clm_work_indications_tbl as ww on (ww.id = n.id_work)
+ left join clm_works_tbl as w on (w.id = ww.id_work)
+ left join syi_user as u1 on (u1.id = n.id_person)
+ where n.id_paccnt = $id
+
+union all
+
+ select pd.id, pd.dt_input as dt, pd.id_person, pd.id_paccnt, coalesce(pd.dt_indic,ph.dt_pack,pd.work_period) as dat_ind,
+        pd.id_meter, pd.id_type_meter as id_typemet, 
+        pd.carry, pd.k_tr as coef_comp, pd.id_zone, pd. num_meter as num_eqp, pd.kind_energy as id_energy, pd.id_operation, 
+        pd.indic as value, null as id_prev, null as value_diff, null as value_cons, null as id_ind, null as id_work, pd.work_period as mmgg, 
+        pd.flock, null as id_corr, null as mmgg_corr, null as indic_real,
+ m.name as type_meter,null as p_indic,null as p_dat_ind,
+ 0 as is_manual,
+ ph.num_pack, null as id_hwork, null as idk_work, 
+ null as indic_real,
+ --0 as is_corrected,
+ --0 as is_last,
+ u1.name as user_name , 2 as ind_mode
+  from 
+   ind_pack_data as pd 
+   join ind_pack_header as ph on (pd.id_pack = ph.id_pack)
+   left join eqi_meter_tbl as m on (m.id = pd.id_type_meter)
+   left join syi_user as u1 on (u1.id = pd.id_person)
+   where id_operation is not null
+   and id_operation in (16,26)
+   and id_indic is null
+   and pd.id_paccnt = $id
+) as ss
+order by mmgg desc
+";
+                $result = pg_query($sql);
+
+// Формируем данные по потреблению за период
+$R = "select a.mmgg,a.type_meter,a.dat_ind,
+case when a.id_zone=0 then 'Загальна' 
+when a.id_zone=9 then 'Ніч' 
+when a.id_zone=10 then 'День'
+when a.id_zone=6 then 'Ніч'
+when a.id_zone=7 then 'Напівпік'
+when a.id_zone=8 then 'Пік' end as zone,    
+a.value,(a.value-b.value)::int as demand,to_char(b.dat_ind,'dd.mm.YYYY')||'-'||to_char(a.dat_ind,'dd.mm.YYYY') as period from (
+select *,DENSE_RANK() OVER (order by mmgg) as num from $tname where mmgg::char(10)||dat_ind::char(10) in (
+ select  mmgg::char(10)||date::char(10) from
+ (select mmgg,max(dat_ind) as date from $tname group by 1 order by 1 desc) e)
+ ) a
+ left join (
+select *,DENSE_RANK() OVER (order by mmgg) as num from $tname where mmgg::char(10)||dat_ind::char(10) in (
+ select  mmgg::char(10)||date::char(10) from
+ (select mmgg,max(dat_ind) as date from $tname group by 1 order by 1 desc) e)
+ ) b
+on a.id_zone=b.id_zone and a.num=(b.num+1) and a.type_meter=b.type_meter
+where b.dat_ind is not null 
+ order by a.mmgg desc,a.id_zone asc
+ ";
+
+//debug($R);
+// Удаляем временную таблицу
+//$sql = 'drop table $tname';
+//$result = pg_query($sql);
+
+                break;
+
+            // Архів споживання при заміні лічильника
+            case 'replace_cnt_demand_old':
+                $sql = "select id from clm_paccnt_tbl paccnt where $where";
+                $result = pg_query($sql);
+                $row = pg_fetch_all($result);
+                $id = $row[0]['id']; // id пользователя - нужен в дальнейшем
+                if(is_null($id)) {
+                    debug('Дані відсутні');
+                    return;
+                }
+                $tname = 'tmp_demand_'.$id;  // Имя временной таблицы
+
+                $R = "select mmgg,case when id_zone=0 then 'Загальна' 
+                when id_zone=9 then 'Ніч' 
+                when id_zone=10 then 'День'
+                when id_zone=6 then 'Ніч'
+                when id_zone=7 then 'Напівпік'
+                when id_zone=8 then 'Пік' end as zone,id_zone,
+                sum(value_diff) as demand from $tname where mmgg::char(10) not in(
+                select mmgg::char(10) from (
+                select mmgg,period,sum(demand) as value from (
+                select a.mmgg,a.type_meter,a.dat_ind,
+                case when a.id_zone=0 then 'Загальна' 
+                when a.id_zone=9 then 'Ніч' 
+                when a.id_zone=10 then 'День'
+                when a.id_zone=6 then 'Ніч'
+                when a.id_zone=7 then 'Напівпік'
+                when a.id_zone=8 then 'Пік' end as zone,    
+                a.value,(a.value-b.value)::int as demand,to_char(b.dat_ind,'dd.mm.YYYY')||'-'||to_char(a.dat_ind,'dd.mm.YYYY') as period from (
+                                    select *,DENSE_RANK() OVER (order by mmgg) as num from $tname where mmgg::char(10)||dat_ind::char(10) in (
+                                    select  mmgg::char(10)||date::char(10) from
+                                (select mmgg,max(dat_ind) as date from $tname group by 1 order by 1 desc) e)
+                 ) a
+                 left join (
+                                    select *,DENSE_RANK() OVER (order by mmgg) as num from $tname where mmgg::char(10)||dat_ind::char(10) in (
+                                    select  mmgg::char(10)||date::char(10) from
+                                (select mmgg,max(dat_ind) as date from $tname group by 1 order by 1 desc) e)
+                 ) b
+                on a.id_zone=b.id_zone and a.num=(b.num+1) and a.type_meter=b.type_meter 
+                where b.dat_ind is not null) ff
+                group by period,mmgg
+                ) t )
+                group by 1,2,3
+                having sum(value_diff)>0
+                order by 1,3";
+
+                break;
+
             // Определяем как давно вводились последние показания (сколько прошло дней)
             case 'how_long':
 //          $R="select max(a.now::date) as pred,now()::date as today,(now()::date-max(a.now::date)) as days
@@ -1213,6 +1358,7 @@ function getArrayFromBase($page, $where = NULL)
                 }
                     else
                     {
+
                         $rozr_cnt = strlen($EvMaxmr);
                         $R = "select '$counterSN' as num_meter,'$typ_li4' AS type_name,'$zonna' AS zone_name,
                             $rozr_cnt as carry,'' as dt_b
@@ -1346,7 +1492,57 @@ where (a.value_ind-b.value_ind)>0) i
                     $row = pg_fetch_array($result);
                     $cnt_sch = $row[0];   // Контокоррентный счет из САПа
                     $q_zones =  $row[1];  // кол-во зон
+//                    debug($cnt_sch);
+                    $is_askoe=0;
+                    $askoe_09 = 0;
+                    $askoe_10 = 0;
+                    $askoe_date = '';
                     switchServerConnect();
+                    // Получение последних показаний если счетчик АСКОЕ
+                    if(trim($srctxt)=='АСКОЕ') {
+                        $_table = date('Ym');
+                        $_table = 'energysum_' . $_table;
+                        $z = "select * from (
+                                select meterid,date,recorddate,ownername,owneraccount,lic,sum(coalesce(val09,0)) as val09,sum(coalesce(val10,0)) as val10 from
+                            (select *,case when tzid=1 then round(value,0) end as val09,case when tzid=2 then round(value,0) end as val10 from (
+                                select d.*,case when owneraccount is null then code else owneraccount end as lic from
+                            (select aa.*,bb.ownername,normal_acc(bb.owneraccount) as owneraccount,''::char(9) as code,bb.serialnumber,bb.name from
+                            (select a.* from $_table a join
+                            (select meterid,max(date) as date from $_table a 
+                            group by meterid) b 
+                            on a.meterid=b.meterid and a.date=b.date
+                            order by 1,4
+                            ) aa
+                            left join meter bb on aa.meterid=bb.id
+                            where 
+                            aa.tzid in (1,2) 
+                            order by 1,4
+                            ) d
+                            ) v
+                            ) w
+                            group by meterid,date,recorddate,ownername,owneraccount,lic
+                            ) f 
+                            where trim(lic)=" . "'" . trim($_SESSION['id']) . "'";
+
+                        $pgHost = '192.168.55.12';
+                        $pgDBName = 'askue';
+                        $con_askoe = pg_connect("host=$pgHost port=5432 dbname=$pgDBName user=skzo password=24skzo_new_password! connect_timeout=5");
+                        $result = pg_query($con_askoe,$z);
+                        $row1 = pg_fetch_all($result);
+                        $rozr_cnt = strlen($EvMaxmr);
+
+                        if(isset($row1[0]['val09']))
+                        {
+                            $is_askoe=1;
+                            $askoe_09 = $row1[0]['val09'];
+                            $askoe_10 = $row1[0]['val10'];
+                            $askoe_date = format_date2($row1[0]['date']);
+                        }
+
+//                        debug($row1);
+                        switchServerConnect();
+                    }
+
                     $hSoap='http://erppr3.esf.ext:8000/sap/bc/srt/wsdl/flv_10002A1011D1/bndg_url/sap/bc/srt/scs/sap/zint_ws_cconline_exp?sap-client=100';
 //                    $hSoap='http://erpqs1.esf.ext:8000/sap/bc/srt/wsdl/flv_10002A1011D1/bndg_url/sap/bc/srt/scs/sap/zint_ws_cconline_exp?sap-client=100';
                     $lSoap = 'WEBFRGATE_CK'; /*логін*/
@@ -1361,7 +1557,7 @@ where (a.value_ind-b.value_ind)>0) i
                         ),
                     );
                     $result = objectToArray($adapter->soap_blina($arr[$proc], $proc));
-//            debug($result);
+
 //            debug($result['EtMeterData']['item']);
                     if(!isset($result['EtMeterData']['item'][0]))
                         $result['EtMeterData']['item'][0]=$result['EtMeterData']['item'];
@@ -1413,12 +1609,18 @@ where (a.value_ind-b.value_ind)>0) i
                         $i++;
                         $t= format_date($v['MrdatPrev'])  . ' - ' . format_date($v['Adat']);
                     }
-
+//                    debug($mas);
                     // Правильная сортировка в случае замены счетчика
                     $prev_begin='';
+                    $prev_end_1 = strtotime('01.03.2021');
+                    $prev_end = '01.03.2021';
                     $p_end = '';
                     $index = -1;
+                    $flag_process=0;
+                    $ic=0;
+
                     foreach ($mas as $k=>$v) {
+                        $ic++;
                         $period = $v['period'];
                         $p_begin = substr($period,0,10);
                         $p_end = trim(substr($period,13));
@@ -1428,6 +1630,9 @@ where (a.value_ind-b.value_ind)>0) i
                         if($p_begin=='00.00.0000') $p_begin = '01.03.2021';
                         $p1=date("d.m.Y", strtotime($p_begin));
                         $p2=date("d.m.Y", strtotime($p_end));
+                        $p2_1=strtotime($p_end);
+                        if($p2_1>$prev_end_1 &&  $flag_process==0 && $ic>1)
+                            $flag_process=1;
 
                         if(strlen($prev_begin)>0){
                             if(strtotime($p1)>strtotime($prev_begin)){
@@ -1438,6 +1643,7 @@ where (a.value_ind-b.value_ind)>0) i
 
                         $prev_begin = $p1;
                         $prev_end = $p2;
+                        $prev_end_1 = $p2_1;
                     }
                     $y = count($mas);
                     if($index<>-1) {  // в случае замены счетчика
@@ -1455,20 +1661,46 @@ where (a.value_ind-b.value_ind)>0) i
                             $mas1[$i] = $mas[$i];
                         }
                     }
+//                    debug($index);
+//                    debug($mas);
+//                    debug('-------------------------');
+//                    debug($mas1);
                     // Формируем новый порядок в случае замены счетчика
-                    if($index<>-1) {
-                        $old = 0;
-                        $j = 1;
-                        $y = count($mas1);
-                        for ($i = 0; $i < $y; $i++) {
-                            $n = $mas1[$i]['order'];
-                            if ($n <> $old && $old <> 0) {
-                                $j++;
+                    if($flag_process==1) {
+                        if ($index <> -1) {
+                            $old = 0;
+                            $j = 1;
+                            $y = count($mas1);
+                            for ($i = 0; $i < $y; $i++) {
+                                $n = $mas1[$i]['order'];
+                                if ($n <> $old && $old <> 0) {
+                                    $j++;
+                                }
+                                $mas1[$i]['order'] = $j;
+                                $old = $n;
                             }
-                            $mas1[$i]['order'] = $j;
-                            $old = $n;
                         }
                     }
+
+                    if($flag_process==0) {
+                        if ($index <> -1) {
+                            $old = 0;
+                            $j = 1;
+                            $y = count($mas1);
+                            for ($i = 0; $i < $y; $i++) {
+                                $n = $mas1[$i]['order'];
+//                            if ($n <> $old && $old <> 0) {
+//                                $j++;
+//                            }
+//                            $mas1[$i]['order'] = $j;
+//                            $old = $n;
+                                $mas2[$n - 1] = $mas1[$i];
+                            }
+                            $mas1 = $mas2;
+                        }
+                    }
+
+//                    debug($mas1);
                     $mas = sort_nested_arrays($mas1,['order'=>'asc','zone1'=>'asc']);
 
 //                    debug($mas);
@@ -1525,6 +1757,8 @@ where (a.value_ind-b.value_ind)>0) i
                     }
                     else{
                         // Если многозонный счетчик
+//                        debug($result2['EtScales']['item']);
+
                         $y= count($result2['EtScales']['item']);
                         $R='';
                         for($i=0;$i<$y;$i++)
@@ -1534,11 +1768,21 @@ where (a.value_ind-b.value_ind)>0) i
                             if($i!=($y-1))
                             $R1 = "
                         select  -12345678 as id_paccnt,-23456789 as id_meter,0 as id_prev, 
-                              case when '$par1'='НП' then 7
+                          case when '$par1'='НП' then 7
                           when '$par1'='НЧ' and $y=3 then 6 
                           when '$par1'='НЧ' and $y=2 then 9 
                           when '$par1'='ПК' then 8
                           when '$par1'='ДН' then 10 end as id_zone,
+                          case when '$par1'='НП' then 0
+                          when '$par1'='НЧ' and $y=3 then 0 
+                          when '$par1'='НЧ' and $y=2 then $askoe_10
+                          when '$par1'='ПК' then 0
+                          when '$par1'='ДН' then $askoe_09 end as auto_val,
+                          case when '$par1'='НП' then ''
+                          when '$par1'='НЧ' and $y=3 then '' 
+                          when '$par1'='НЧ' and $y=2 then '$askoe_date'
+                          when '$par1'='ПК' then ''
+                          when '$par1'='ДН' then '$askoe_date' end as auto_date,
                           case when '$par1'='НП' then $val_prev3
                           when '$par1'='НЧ' and $y=3 then $val_prev2 
                           when '$par1'='НЧ' and $y=2 then $val_prev2
@@ -1565,6 +1809,16 @@ where (a.value_ind-b.value_ind)>0) i
                           when '$par1'='НЧ' and $y=2 then 9 
                           when '$par1'='ПК' then 8
                           when '$par1'='ДН' then 10 end as id_zone,
+                          case when '$par1'='НП' then 0
+                          when '$par1'='НЧ' and $y=3 then 0 
+                          when '$par1'='НЧ' and $y=2 then $askoe_10 
+                          when '$par1'='ПК' then 0
+                          when '$par1'='ДН' then $askoe_09 end as auto_val,
+                          case when '$par1'='НП' then ''
+                          when '$par1'='НЧ' and $y=3 then '' 
+                          when '$par1'='НЧ' and $y=2 then '$askoe_date'
+                          when '$par1'='ПК' then ''
+                          when '$par1'='ДН' then '$askoe_date' end as auto_date,
                           case when '$par1'='НП' then $val_prev3
                           when '$par1'='НЧ' and $y=3 then $val_prev2 
                           when '$par1'='НЧ' and $y=2 then $val_prev2
@@ -1582,6 +1836,8 @@ where (a.value_ind-b.value_ind)>0) i
                          (select max(dat_ind) as dat_prev from acd_cabindication_tbl paccnt where $where) as dat_prev1";
                             $R.=$R1;
 
+//                            debug($R);
+
                         }
                     }
                 }
@@ -1591,6 +1847,8 @@ where (a.value_ind-b.value_ind)>0) i
                          from (" . $R .') w ' .
                     'left join acd_cabindication_tbl paccnt on w.dat_prev1=paccnt.dat_ind and w.id_zone=paccnt.id_zone and ' . $where .
                     ' order by id_zone desc';
+
+//                debug($R);
 
 //                $R = 'select * from ('.$R.') p order by id_zone desc';
 //                $R = "select distinct w.*,paccnt.value_ind as value_ind,paccnt.value_ind as val_new
@@ -2319,6 +2577,7 @@ count(distinct id_client) as u_indication from acd_cabindication_tbl";
                 foreach ($a as $col) {
                     $b = explode('|', $col);
                     $value = $b[0];
+//                    if(empty($value)) continue;
                     $type = $b[1];
                     $R .= '<td>' . stringFormat($row[$value], $type, $value, $col) . '</td>';
                 }

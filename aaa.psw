@@ -1,5 +1,5 @@
 select a.* from a_cabinet_register_tbl a 
                   join clm_paccnt_tbl b on trim(a.lic)=trim(b.code)   
                   left join clm_meterpoint_tbl as m on b.id=m.id_paccnt
-                  where trim(a.lic)='011026970' and trim(a.email)='irina.a.shumeiko@gmail.com'
-                  and trim(m.num_meter)='10390212'update a_cabinet_register_tbl set pass='e896a9fe32372e7776eb7b8baaefa0c2' where trim(lic)='011026970' and trim(email)='irina.a.shumeiko@gmail.com'kas7rgdf9i
+                  where trim(a.lic)='011048613' and trim(a.email)='salik2410@gmail.com'
+                  and trim(m.num_meter)='1155853'update a_cabinet_register_tbl set pass='73996fb207975bf9ae210094a190bce8' where trim(lic)='011048613' and trim(email)='salik2410@gmail.com'lio7hzis6v

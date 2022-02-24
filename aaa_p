@@ -1,0 +1,1 @@
+select * from a_cabinet_register_tbl where trim(lic)='011050467' limit 1

@@ -51,6 +51,7 @@ function translate($word) {
       break;
     case 'meter':
     case 'num_meter':
+    case 'type_meter':
       $r = 'Лічильник';
       break;
     case 'ground':
@@ -222,6 +223,15 @@ function translate($word) {
     case 'mmgg_bill':
       $r = 'За який місяць рахунок';
       break;
+      case 'auto_val':
+          $r = 'Передано системою АСКОЕ';
+          break;
+      case 'auto_date':
+          $r = 'Дата передачі системою АСКОЕ';
+          break;
+      case 'mmgg':
+          $r = 'Місяць';
+          break;
     case 'idk_doc':
       $r = 'Вид документа';
       break;
@@ -265,6 +275,9 @@ function translate($word) {
     case 'term_control':
       $r = 'Період повірки';
       break;
+    case 'period':
+          $r = 'Період споживання';
+          break;
     case 'dt_control':
       $r = 'Дата останньої повірки';
       break;

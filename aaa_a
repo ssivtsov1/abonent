@@ -1,9 +1,8 @@
-select * from
-          (select *,max(pred) over() as last from
-          (select max(a.dat_ind::date) as pred,now()::date as today,(now()::date-max(a.dat_ind::date)) as days,value_ind
-          from acd_cabindication_tbl a
-          inner join clm_paccnt_tbl paccnt on
-          a.id_paccnt=paccnt.id
-          where paccnt.code='011039519'
-          group by value_ind) q ) qq
-          where pred=last limit 1
+
+                       select * from
+                      (select *,max(pred) over() as last from
+                      (select max(a.dat_ind::date) as pred,now()::date as today,(now()::date-max(a.dat_ind::date)) as days,value_ind
+                      from acd_cabindication_tbl a
+                      where a.code='011050467'
+                      group by value_ind) q ) qq
+                      where pred=last limit 1

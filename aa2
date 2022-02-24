@@ -1,0 +1,1 @@
+INSERT INTO acd_cabindication_tbl (dat_prev,code,id_paccnt,id_meter,id_previndic,id_zone,id_meter_type,kind_energy,mmgg,num_eqp,koef,carry,dat_ind,value_prev,value_ind,calc_ind_pr) VALUES ('2021-10-31','021005215','-12345678','-23456789','0','0','-1234','10','2021-04-01','354152','1','6','2021-11-05','23429',23430,23430),(
